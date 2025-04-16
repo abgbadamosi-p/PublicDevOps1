@@ -1,0 +1,76 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+trigger: none
+
+pool: 
+  vmImage: ubuntu-latest
+
+variables:
+  bkstrgrg: '1-08924493-playground-sandbox'
+  bkstrg: 'stgqbb36l47bp3058opivar'
+  bkcontainer: 'myfirstcontainer'
+  bkstrgkey: 'devpipeline.terraform.tfstate'
+
+stages:
+  - stage: tfvalidate
+    jobs:
+      - jobs: validate
+        continueonerror: false
+        steps:
+          - task: TerraformInstaller@1
+            displayName: inatll terraaaaaaaaaform
+            inputs:
+              terraformVersion: 'latest'
+          - task: TerraformTaskV4@4
+            displayName: init terraaaaaaaaaform
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              backendServiceArm: 'hisham1'
+              backendAzureRmResourceGroupName: '1-08924493-playground-sandbox'
+              backendAzureRmStorageAccountName: 'stgqbb36l47bp3058opivar'
+              backendAzureRmContainerName: 'myfirstcontainer'
+              backendAzureRmKey: 'devpipeline.terraform.tfstate'
+          - task: TerraformTaskV4@4
+            displayName: validate terraaaaaaaaaform
+            inputs:
+              provider: 'azurerm'
+              command: 'validate'
+  - stage: tfdeploy
+    condition: succeded ('tfvalidate')
+    dependsOn:tfvalidate
+    jobs:
+      - job: apply
+        steps:
+          - task: TerraformInstaller@1
+            displayName: inatll terraaaaaaaaaform
+            inputs:
+              terraformVersion: 'latest'
+          - task: TerraformTaskV4@4
+            displayName: init terraaaaaaaaaform
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              backendServiceArm: 'hisham1'
+              backendAzureRmResourceGroupName: '1-08924493-playground-sandbox'
+              backendAzureRmStorageAccountName: 'stgqbb36l47bp3058opivar'
+              backendAzureRmContainerName: 'myfirstcontainer'
+              backendAzureRmKey: 'devpipeline.terraform.tfstate'
+
+          - task: TerraformTaskV4@4
+            displayName:plan terraaaaaaform
+            inputs:
+              provider: 'azurerm'
+              command: 'plan'
+              environmentServiceNameAzureRM: 'hisham1'
+          - task: TerraformTaskV4@4
+            displayName:apply terraaaaaaform
+            inputs:
+              provider: 'azurerm'
+              command: 'apply'
+              environmentServiceNameAzureRM: 'hisham1'
+
+
+
