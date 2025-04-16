@@ -1,51 +1,38 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
-
 trigger:
-  branches:
-    include:
-    - master
-    # - development
-
-variables: # terraform variables
- ServiceConnectionName: 'anynameofsp'
- bk-rg-name: '1-08924493-playground-sandbox'
- bk-str-account-name: 'stgqbb36l47bp3058opivar'
- bk-container-name: 'myfirstcontainer'
- bk-key: 'terraform.tfstate' # key is actually name of the file, determined here
+- main
 
 pool:
-  vmImage: ubuntu-latest # This is the default if you don't specify a pool or vmImage.
+  vmImage: 'ubuntu-latest'
 
 stages:
+- stage: Plan
+  displayName: 'Terraform Plan'
+  jobs:
+  - job: TerraformPlan
+    displayName: 'Terraform Plan'
+    steps:
+    - task: TerraformInstaller@0
+      inputs:
+        terraformVersion: 'latest'
 
-  - stage: validate_terraform
-    displayName: 'Validate Terraform'
+    - script: |
+        terraform --version
+        terraform init -backend-config="storage_account_name=$(storageAccountName)" -backend-config="container_name=$(containerName)" -backend-config="key=$(key)" -backend-config="access_key=$(accessKey)"
+        terraform plan -out=tfplan
+      displayName: 'Terraform Init and Plan'
 
-    jobs:
-    - template: Terraform/plan.yml
-      parameters:
-        env: dev
-    - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/master')}}: #if branch is master then execute
-      - template: Terraform/plan.yml
-        parameters:
-          env: prd
+- stage: Deploy
+  displayName: 'Terraform Apply'
+  jobs:
+  - job: TerraformApply
+    displayName: 'Terraform Apply'
+    steps:
+    - task: TerraformInstaller@0
+      inputs:
+        terraformVersion: 'latest'
 
-  - stage: deploy_terraform
-    displayName: 'Deploy Terraform'
-    dependsOn:
-    - validate_terraform # makes sure validate_terraform stage runs first
-    condition: succeeded('validate_terraform') ## stage runs only if validate_terraform is successful
-
-    jobs:
-    - template: Terraform/deploy.yml
-      parameters:
-        env: dev
-    - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/master')}}: #if branch is master then execute
-      - template: Terraform/deploy.yml
-        parameters:
-          env: prd
-
+    - script: |
+        terraform --version
+        terraform init -backend-config="storage_account_name=$(storageAccountName)" -backend-config="container_name=$(containerName)" -backend-config="key=$(key)" -backend-config="access_key=$(accessKey)"
+        terraform apply -auto-approve tfplan
+      displayName: 'Terraform Init and Apply'
