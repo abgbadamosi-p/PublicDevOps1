@@ -2,37 +2,32 @@ trigger:
 - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: ubuntu-latest
 
 stages:
-- stage: Plan
-  displayName: 'Terraform Plan'
+- stage: Validate
+  displayName: Validate stage
   jobs:
-  - job: TerraformPlan
-    displayName: 'Terraform Plan'
+  - job: Validate
+    pool:
+      vmImage: ubuntu-latest
     steps:
-    - task: TerraformInstaller@0
-      inputs:
-        terraformVersion: 'latest'
-
-    - script: |
-        terraform --version
-        terraform init -backend-config="storage_account_name=$(storageAccountName)" -backend-config="container_name=$(containerName)" -backend-config="key=$(key)" -backend-config="access_key=$(accessKey)"
-        terraform plan -out=tfplan
-      displayName: 'Terraform Init and Plan'
+    - checkout: self
+    - script: echo my Terraform Validate
 
 - stage: Deploy
-  displayName: 'Terraform Apply'
+  displayName: Deploy stage
+  dependsOn: Validate
   jobs:
-  - job: TerraformApply
-    displayName: 'Terraform Apply'
-    steps:
-    - task: TerraformInstaller@0
-      inputs:
-        terraformVersion: 'latest'
-
-    - script: |
-        terraform --version
-        terraform init -backend-config="storage_account_name=$(storageAccountName)" -backend-config="container_name=$(containerName)" -backend-config="key=$(key)" -backend-config="access_key=$(accessKey)"
-        terraform apply -auto-approve tfplan
-      displayName: 'Terraform Init and Apply'
+  - deployment: Deploy
+    displayName: Deploy job
+    pool:
+      vmImage: ubuntu-latest
+    environment: 'Deploy Terraform environment' #creates an environment if it doesn't exist
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+          - script: echo my Terraform Deploy
+      
