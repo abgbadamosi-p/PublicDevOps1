@@ -1,0 +1,51 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+
+trigger:
+  branches:
+    include:
+    - master
+    # - development
+
+variables: # terraform variables
+ ServiceConnectionName: 'anynameofsp'
+ bk-rg-name: '1-08924493-playground-sandbox'
+ bk-str-account-name: 'stgqbb36l47bp3058opivar'
+ bk-container-name: 'myfirstcontainer'
+ bk-key: 'terraform.tfstate' # key is actually name of the file, determined here
+
+pool:
+  vmImage: ubuntu-latest # This is the default if you don't specify a pool or vmImage.
+
+stages:
+
+  - stage: validate_terraform
+    displayName: 'Validate Terraform'
+
+    jobs:
+    - template: Terraform/plan.yml
+      parameters:
+        env: dev
+    - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/master')}}: #if branch is master then execute
+      - template: Terraform/plan.yml
+        parameters:
+          env: prd
+
+  - stage: deploy_terraform
+    displayName: 'Deploy Terraform'
+    dependsOn:
+    - validate_terraform # makes sure validate_terraform stage runs first
+    condition: succeeded('validate_terraform') ## stage runs only if validate_terraform is successful
+
+    jobs:
+    - template: Terraform/deploy.yml
+      parameters:
+        env: dev
+    - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/master')}}: #if branch is master then execute
+      - template: Terraform/deploy.yml
+        parameters:
+          env: prd
+
