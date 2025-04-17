@@ -8,9 +8,9 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  bkstrgrg: '1-08924493-playground-sandbox'
-  bkstrg: 'stgqbb36l47bp3058opivar'
-  bkcontainer: 'myfirstcontainer'
+  bkstrgrg: '1-23e4ac86-playground-sandbox'
+  bkstrg: 'uiuiuiuiuiuiuiu'
+  bkcontainer: 'qwe'
   bkstrgkey: 'devpipeline.terraform.tfstate'
 
 stages:
@@ -20,58 +20,60 @@ stages:
         continueOnError: false
         steps:
           - task: TerraformInstaller@1
-            displayName: inatll terraaaaaaaaaform
+            displayName: Install Terraform
             inputs:
               terraformVersion: 'latest'
           - task: TerraformTaskV4@4
-            displayName: init terraaaaaaaaaform
+            displayName: Initialize Terraform
             inputs:
               provider: 'azurerm'
               command: 'init'
               backendServiceArm: 'hisham2'
-              backendAzureRmResourceGroupName: '1-08924493-playground-sandbox'
-              backendAzureRmStorageAccountName: 'stgqbb36l47bp3058opivar'
-              backendAzureRmContainerName: 'myfirstcontainer'
+              backendAzureRmResourceGroupName: '1-23e4ac86-playground-sandbox'
+              backendAzureRmStorageAccountName: 'uiuiuiuiuiuiuiu'
+              backendAzureRmContainerName: 'qwe'
               backendAzureRmKey: 'devpipeline.terraform.tfstate'
           - task: TerraformTaskV4@4
-            displayName: validate terraaaaaaaaaform
+            displayName: Validate Terraform
             inputs:
               provider: 'azurerm'
               command: 'validate'
+
   - stage: tfdeploy
-    condition: succeded ('tfvalidate')
+    condition: succeeded('tfvalidate')
     dependsOn: tfvalidate
     jobs:
       - job: apply
         steps:
           - task: TerraformInstaller@1
-            displayName: inatll terraaaaaaaaaform
+            displayName: Install Terraform
             inputs:
               terraformVersion: 'latest'
           - task: TerraformTaskV4@4
-            displayName: init terraaaaaaaaaform
+            displayName: Initialize Terraform
             inputs:
               provider: 'azurerm'
               command: 'init'
               backendServiceArm: 'hisham2'
-              backendAzureRmResourceGroupName: '1-08924493-playground-sandbox'
-              backendAzureRmStorageAccountName: 'stgqbb36l47bp3058opivar'
-              backendAzureRmContainerName: 'myfirstcontainer'
+              backendAzureRmResourceGroupName: '1-23e4ac86-playground-sandbox'
+              backendAzureRmStorageAccountName: 'uiuiuiuiuiuiuiu'
+              backendAzureRmContainerName: 'qwe'
               backendAzureRmKey: 'devpipeline.terraform.tfstate'
-
           - task: TerraformTaskV4@4
-            displayName:plan terraaaaaaform
+            displayName: Plan Terraform
             inputs:
               provider: 'azurerm'
               command: 'plan'
               environmentServiceNameAzureRM: 'hisham2'
-
           - task: TerraformTaskV4@4
-            displayName:apply terraaaaaaform
+            displayName: Apply Terraform
             inputs:
               provider: 'azurerm'
               command: 'apply'
               environmentServiceNameAzureRM: 'hisham2'
+
+
+
 
 
 
