@@ -28,7 +28,7 @@ stages:
             inputs:
               provider: 'azurerm'
               command: 'init'
-              backendServiceArm: 'hisham1'
+              backendServiceArm: 'hisham2'
               backendAzureRmResourceGroupName: '1-08924493-playground-sandbox'
               backendAzureRmStorageAccountName: 'stgqbb36l47bp3058opivar'
               backendAzureRmContainerName: 'myfirstcontainer'
@@ -53,7 +53,7 @@ stages:
             inputs:
               provider: 'azurerm'
               command: 'init'
-              backendServiceArm: 'hisham1'
+              backendServiceArm: 'hisham2'
               backendAzureRmResourceGroupName: '1-08924493-playground-sandbox'
               backendAzureRmStorageAccountName: 'stgqbb36l47bp3058opivar'
               backendAzureRmContainerName: 'myfirstcontainer'
@@ -64,14 +64,14 @@ stages:
             inputs:
               provider: 'azurerm'
               command: 'plan'
-              environmentServiceNameAzureRM: 'hisham1'
+              environmentServiceNameAzureRM: 'hisham2'
 
           - task: TerraformTaskV4@4
             displayName:apply terraaaaaaform
             inputs:
               provider: 'azurerm'
               command: 'apply'
-              environmentServiceNameAzureRM: 'hisham1'
+              environmentServiceNameAzureRM: 'hisham2'
 
 
 
