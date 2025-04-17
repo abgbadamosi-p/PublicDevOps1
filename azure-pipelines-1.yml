@@ -28,6 +28,7 @@ stages:
             inputs:
               provider: 'azurerm'
               command: 'init'
+              commandOptions: '-reconfigure'
               backendServiceArm: 'hisham2'
               backendAzureRmResourceGroupName: '1-23e4ac86-playground-sandbox'
               backendAzureRmStorageAccountName: 'uiuiuiuiuiuiuiu'
