@@ -64,6 +64,7 @@ stages:
             inputs:
               provider: 'azurerm'
               command: 'plan'
+              workingDirectory: $(System.DefaultWorkingDirectory)/Azure DevOps and Terraform Pipelines/
               environmentServiceNameAzureRM: 'hisham2'
           - task: TerraformTaskV4@4
             displayName: Apply Terraform
