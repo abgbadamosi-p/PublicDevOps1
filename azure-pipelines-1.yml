@@ -40,7 +40,7 @@ stages:
               command: 'validate'
   - stage: tfdeploy
     condition: succeded ('tfvalidate')
-    dependsOn:tfvalidate
+    dependsOn: tfvalidate
     jobs:
       - job: apply
         steps:
