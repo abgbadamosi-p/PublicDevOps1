@@ -1,0 +1,81 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+trigger: none
+
+pool: 
+  vmImage: ubuntu-latest
+
+variables:
+  bkstrgrg: '1-23e4ac86-playground-sandbox'
+  bkstrg: 'uiuiuiuiuiuiuiu'
+  bkcontainer: 'qwe'
+  bkstrgkey: 'devpipeline.terraform.tfstate'
+
+stages:
+  - stage: tfvalidate
+    jobs:
+      - job: validate
+        continueOnError: false
+        steps:
+          - task: TerraformInstaller@1
+            displayName: Install Terraform
+            inputs:
+              terraformVersion: 'latest'
+          - task: TerraformTaskV4@4
+            displayName: Initialize Terraform
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              commandOptions: '-migrate-state'
+              backendServiceArm: 'hisham2'
+              backendAzureRmResourceGroupName: '1-23e4ac86-playground-sandbox'
+              backendAzureRmStorageAccountName: 'uiuiuiuiuiuiuiu'
+              backendAzureRmContainerName: 'qwe'
+              backendAzureRmKey: 'devpipeline.terraform.tfstate'
+          - task: TerraformTaskV4@4
+            displayName: Validate Terraform
+            inputs:
+              provider: 'azurerm'
+              command: 'validate'
+
+  - stage: tfdeploy
+    condition: succeeded('tfvalidate')
+    dependsOn: tfvalidate
+    jobs:
+      - job: apply
+        steps:
+          - task: TerraformInstaller@1
+            displayName: Install Terraform
+            inputs:
+              terraformVersion: 'latest'
+          - task: TerraformTaskV4@4
+            displayName: Initialize Terraform
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              backendServiceArm: 'hisham2'
+              backendAzureRmResourceGroupName: '1-23e4ac86-playground-sandbox'
+              backendAzureRmStorageAccountName: 'uiuiuiuiuiuiuiu'
+              backendAzureRmContainerName: 'qwe'
+              backendAzureRmKey: 'devpipeline.terraform.tfstate'
+          - task: TerraformTaskV4@4
+            displayName: Plan Terraform
+            inputs:
+              provider: 'azurerm'
+              command: 'plan'
+              workingDirectory: $(System.DefaultWorkingDirectory)/Azure DevOps and Terraform Pipelines/
+              environmentServiceNameAzureRM: 'hisham2'
+          - task: TerraformTaskV4@4
+            displayName: Apply Terraform
+            inputs:
+              provider: 'azurerm'
+              command: 'apply'
+              environmentServiceNameAzureRM: 'hisham2'
+
+
+
+
+
+
